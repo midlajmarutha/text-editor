@@ -1,7 +1,8 @@
-use crossterm::cursor::{MoveTo};
+use crossterm::cursor::{MoveTo, Hide, Show};
 use crossterm::execute;
+use crossterm::queue;
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode, Clear, ClearType, size};
-use std::io::stdout;
+use std::io::{stdout, Write};
 
 pub struct Terminal {}
 
@@ -26,5 +27,17 @@ impl Terminal {
     }
     pub fn size() -> Result<(u16, u16), std::io::Error> {
         size()
+    }
+    pub fn hide_cursor() -> Result<(), std::io::Error> {
+        queue!(stdout(), Hide)?;
+        Ok(())
+    }
+    pub fn show_cursor() -> Result<(), std::io::Error> {
+        queue!(stdout(), Show)?;
+        Ok(())
+    }
+    pub fn execute() -> Result<(), std::io::Error> {
+        stdout().flush()?;
+        Ok(())
     }
 }
