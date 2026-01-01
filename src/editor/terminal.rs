@@ -4,7 +4,8 @@ use crossterm::queue;
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode, Clear, ClearType, size};
 use std::io::{stdout, Write};
 
-pub struct Terminal {}
+
+pub struct Terminal;
 
 impl Terminal {
     pub fn initialize() -> Result<(), std::io::Error> {
@@ -14,6 +15,7 @@ impl Terminal {
         Ok(())
     }
     pub fn terminate() -> Result<(), std::io::Error> {
+        Self::execute()?;
         disable_raw_mode()?;
         Ok(())
     }
@@ -22,7 +24,7 @@ impl Terminal {
         Ok(())
     }
     pub fn move_cursor_to(x:u16, y:u16) -> Result<(), std::io::Error> {
-        execute!(stdout(), MoveTo(x, y))?;
+        queue!(stdout(), MoveTo(x, y))?;
         Ok(())
     }
     pub fn size() -> Result<(u16, u16), std::io::Error> {
