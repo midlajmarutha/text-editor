@@ -1,4 +1,4 @@
-use crossterm::cursor::{MoveTo, Hide, Show};
+use crossterm::cursor::{MoveTo, MoveRight, Hide, Show};
 use crossterm::execute;
 use crossterm::queue;
 use crossterm::style::Print;
@@ -7,13 +7,13 @@ use std::io::{stdout, Write};
 use core::fmt::Display;
 
 pub struct Size {
-    pub width: u16,
-    pub height: u16
+    pub width: usize,
+    pub height: usize
 }
 
 pub struct Position {
-    pub x: u16,
-    pub y: u16
+    pub col: usize,
+    pub row: usize
 }
 
 pub struct Terminal;
@@ -22,7 +22,7 @@ impl Terminal {
     pub fn initialize() -> Result<(), std::io::Error> {
         enable_raw_mode()?;
         Self::clear_screen()?;
-        Self::move_cursor_to(Position{x:0, y:0})?;
+        Self::move_cursor_to(Position{col:0, row:0})?;
         Ok(())
     }
     pub fn terminate() -> Result<(), std::io::Error> {
@@ -34,13 +34,23 @@ impl Terminal {
         execute!(stdout(), Clear(ClearType::All))?;
         Ok(())
     }
+    pub fn clear_line() -> Result<(), std::io::Error> {
+        queue!(stdout(), Clear(ClearType::CurrentLine))?;
+        Ok(())
+    }
     pub fn move_cursor_to(position: Position) -> Result<(), std::io::Error> {
-        queue!(stdout(), MoveTo(position.x, position.y))?;
+        queue!(stdout(), MoveTo(position.col as u16, position.row as u16))?;
+        Ok(())
+    }
+    pub fn move_cursor(row:u16, col: u16) -> Result<(), std::io::Error>{
+        queue!(stdout(), MoveTo(row, col));
         Ok(())
     }
     pub fn size() -> Result<Size, std::io::Error> {
-        let (width, height) = size()?;
-        Ok(Size {width , height})
+        let (width_u16, height_u16) = size()?;
+        let height = height_u16 as usize;
+        let width = width_u16 as usize;
+        Ok(Size {width, height})
     }
     pub fn hide_cursor() -> Result<(), std::io::Error> {
         queue!(stdout(), Hide)?;
